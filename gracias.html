@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tu Pedido Está Completo — Protocolo Glucovita</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+
+  /* ============================================================
+     DESIGN TOKENS — paleta calmada, enfocada en la confirmación.
+     Se mantiene la misma familia verde/blanco hueso del resto del
+     embudo de Protocolo Glucovita, pero más discreta: sin dorado,
+     sin colores de urgencia.
+  ============================================================ */
+  :root {
+    --base: #FBFAF6;
+    --surface: #FFFFFF;
+    --ink: #1B2A20;
+    --muted: #5B6B60;
+    --green-900: #163524;
+    --green-700: #1F5B3A;
+    --green-600: #2C7449;
+    --green-500: #3C8C5B;
+    --green-100: #E7F2E9;
+    --green-50: #F3F8F4;
+    --line: #E2EAE3;
+    --shadow-sm: 0 2px 10px rgba(27, 42, 32, 0.05);
+    --shadow-md: 0 10px 28px rgba(27, 42, 32, 0.08);
+    --radius: 18px;
+    --radius-sm: 14px;
+    --maxw: 760px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--base);
+    color: var(--ink);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  a { color: inherit; }
+
+  .wrap {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  h1, h2, h3 { margin: 0; color: var(--green-900); }
+
+  p { margin: 0; color: var(--ink); }
+  .muted { color: var(--muted); }
+
+  /* ---------- Hojas decorativas (sutiles, mínimas) ---------- */
+  .leaf-decor {
+    position: absolute;
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .leaf-decor.top-left { top: 24px; left: -18px; width: 90px; transform: rotate(-12deg); }
+  .leaf-decor.top-right { top: 60px; right: -20px; width: 76px; transform: rotate(18deg); }
+  .leaf-decor.bottom-left { bottom: 60px; left: -14px; width: 70px; transform: rotate(30deg); }
+  @media (max-width: 640px) {
+    .leaf-decor { opacity: 0.35; }
+    .leaf-decor.top-left { width: 60px; }
+    .leaf-decor.top-right { width: 52px; }
+    .leaf-decor.bottom-left { display: none; }
+  }
+
+  /* ---------- Estructura de página ---------- */
+  main {
+    position: relative;
+    z-index: 1;
+    padding: 72px 0 40px 0;
+  }
+  @media (max-width: 640px) { main { padding: 48px 0 28px 0; } }
+
+  /* ---------- Check de confirmación ---------- */
+  .check-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 28px;
+  }
+  .check-circle {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    background: var(--green-100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0.7);
+    animation: pop-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.1s forwards;
+  }
+  .check-circle svg { display: block; }
+  .check-circle path {
+    stroke-dasharray: 40;
+    stroke-dashoffset: 40;
+    animation: draw-check 0.5s ease-out 0.5s forwards;
+  }
+
+  @keyframes pop-in {
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes draw-check {
+    to { stroke-dashoffset: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .check-circle { opacity: 1; transform: scale(1); animation: none; }
+    .check-circle path { stroke-dashoffset: 0; animation: none; }
+  }
+
+  /* ---------- Texto principal ---------- */
+  .hero { text-align: center; margin-bottom: 52px; }
+
+  .eyebrow {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--green-700);
+    background: var(--green-100);
+    padding: 7px 16px;
+    border-radius: 999px;
+    margin-bottom: 18px;
+  }
+
+  h1.title {
+    font-size: clamp(28px, 5.5vw, 40px);
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    margin-bottom: 18px;
+  }
+
+  .hero p {
+    font-size: 16.5px;
+    color: var(--muted);
+    max-width: 480px;
+    margin: 0 auto 10px auto;
+  }
+  .hero p:last-child { margin-bottom: 0; }
+
+  /* ---------- Tarjetas de información ---------- */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    padding: 28px 26px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+  }
+  @media (max-width: 560px) {
+    .card { padding: 22px 20px; gap: 14px; }
+  }
+
+  .card-icon {
+    flex-shrink: 0;
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    background: var(--green-100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .card-icon.attention { background: #FBF3E3; }
+
+  .card-body h2 {
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    margin-bottom: 8px;
+    color: var(--green-700);
+  }
+  .card-body p {
+    font-size: 15px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .card-body p:last-child { margin-bottom: 0; }
+
+  .support-email {
+    display: inline-block;
+    font-weight: 700;
+    color: var(--green-700);
+    text-decoration: none;
+    border-bottom: 1px solid var(--green-500);
+    padding-bottom: 1px;
+    word-break: break-all;
+  }
+  .support-email:hover { color: var(--green-600); }
+
+  /* ---------- Mensaje final ---------- */
+  .final-block {
+    text-align: center;
+    margin: 44px 0 8px 0;
+    padding: 0 12px;
+  }
+  .final-block p {
+    font-size: 16px;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .final-block .thanks {
+    font-weight: 800;
+    color: var(--green-700);
+    font-size: 18px;
+    margin-top: 14px;
+  }
+
+  /* ---------- Pie de página ---------- */
+  footer {
+    position: relative;
+    z-index: 1;
+    padding: 30px 0 40px 0;
+    border-top: 1px solid var(--line);
+    margin-top: 24px;
+  }
+  footer p {
+    text-align: center;
+    font-size: 12.5px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  footer p:last-child { margin-bottom: 0; }
+  footer a { color: var(--green-700); text-decoration: none; font-weight: 600; }
+  footer a:hover { text-decoration: underline; }
+
+</style>
+</head>
+<body>
+
+  <!-- Hojas decorativas sutiles, no distraen -->
+  <svg class="leaf-decor top-left" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M50 5C25 15 15 45 30 75C45 95 70 90 80 65C90 40 75 15 50 5Z" fill="#3C8C5B" opacity="0.18"/>
+  </svg>
+  <svg class="leaf-decor top-right" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M50 5C25 15 15 45 30 75C45 95 70 90 80 65C90 40 75 15 50 5Z" fill="#1F5B3A" opacity="0.15"/>
+  </svg>
+  <svg class="leaf-decor bottom-left" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M50 5C25 15 15 45 30 75C45 95 70 90 80 65C90 40 75 15 50 5Z" fill="#3C8C5B" opacity="0.14"/>
+  </svg>
+
+  <main>
+    <div class="wrap">
+
+      <!-- ============================================================
+           CHECK DE CONFIRMACIÓN
+      ============================================================ -->
+      <div class="check-wrap">
+        <div class="check-circle">
+          <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="26" cy="26" r="25" stroke="#3C8C5B" stroke-width="2"/>
+            <path d="M15 27L22.5 34.5L37 18" stroke="#1F5B3A" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- ============================================================
+           HERO / MENSAJE PRINCIPAL DE CONFIRMACIÓN
+      ============================================================ -->
+      <div class="hero">
+        <span class="eyebrow">Pedido Confirmado</span>
+        <h1 class="title">¡Tu pedido está completo!</h1>
+        <p>¡Gracias por tu compra!</p>
+        <p>En los próximos minutos recibirás un correo de confirmación con toda la información que necesitas para acceder a tus materiales.</p>
+      </div>
+
+      <!-- ============================================================
+           TARJETA DE CORREO
+      ============================================================ -->
+      <div class="card">
+        <div class="card-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2.5" y="4.5" width="19" height="15" rx="2.5" stroke="#1F5B3A" stroke-width="1.8"/>
+            <path d="M3.5 6L12 13L20.5 6" stroke="#1F5B3A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="card-body">
+          <h2>Revisa Tu Bandeja de Entrada</h2>
+          <p>Tus instrucciones de acceso se enviarán al correo electrónico que usaste durante el pago.</p>
+          <p>Por favor, espera unos minutos a que llegue el mensaje.</p>
+        </div>
+      </div>
+
+      <!-- ============================================================
+           TARJETA DE AVISO DE SPAM
+      ============================================================ -->
+      <div class="card">
+        <div class="card-icon attention">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 3L22 20H2L12 3Z" stroke="#C89B3C" stroke-width="1.8" stroke-linejoin="round"/>
+            <path d="M12 10V14" stroke="#C89B3C" stroke-width="1.8" stroke-linecap="round"/>
+            <circle cx="12" cy="17" r="1" fill="#C89B3C"/>
+          </svg>
+        </div>
+        <div class="card-body">
+          <h2>¿No Ves El Correo?</h2>
+          <p>Por favor, revisa también tu carpeta de Spam, Correo no deseado o Promociones, ya que el correo de confirmación a veces llega ahí.</p>
+        </div>
+      </div>
+
+      <!-- ============================================================
+           TARJETA DE SOPORTE
+      ============================================================ -->
+      <div class="card">
+        <div class="card-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 13.5997 3.41569 15.1054 4.14446 16.4114L3 21L7.58862 19.8555C8.89459 20.5843 10.4003 21 12 21Z" stroke="#1F5B3A" stroke-width="1.8" stroke-linejoin="round"/>
+            <path d="M9 10.5C9 10.5 9.75 12 12 12C14.25 12 15 10.5 15 10.5" stroke="#1F5B3A" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="card-body">
+          <h2>¿Necesitas Ayuda?</h2>
+          <p>Si tienes alguna pregunta o necesitas ayuda para acceder a tus materiales, puedes contactarnos directamente en:</p>
+          <p><a href="mailto:contacto.transformandotucuerpo@gmail.com" class="support-email">contacto.transformandotucuerpo@gmail.com</a></p>
+          <p>Nuestro equipo de soporte te responderá lo antes posible.</p>
+        </div>
+      </div>
+
+      <!-- ============================================================
+           MENSAJE FINAL
+      ============================================================ -->
+      <div class="final-block">
+        <p>Todo está listo.</p>
+        <p>Ahora solo revisa tu bandeja de entrada y sigue las instrucciones para acceder a tu compra.</p>
+        <p class="thanks">¡Gracias por elegirnos!</p>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ============================================================
+       PIE DE PÁGINA
+  ============================================================ -->
+  <footer>
+    <div class="wrap">
+      <p>© 2026 Protocolo Glucovita. Todos los derechos reservados.</p>
+      <p>Soporte: <a href="mailto:contacto.transformandotucuerpo@gmail.com">contacto.transformandotucuerpo@gmail.com</a></p>
+      <p>Dr. Javier Castillo</p>
+    </div>
+  </footer>
+
+</body>
+</html>
